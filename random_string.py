@@ -18,4 +18,4 @@ if __name__ == '__main__':
         get_random_string()
     else:
         opts_d = {t[0]: t[1] for t in opts}
-        get_random_string(opts_d.get('-l'))
+        get_random_string(opts_d.get('-l', 15))
