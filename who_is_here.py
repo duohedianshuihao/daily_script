@@ -1,5 +1,9 @@
 # coding: utf-8
 
+"""
+logging to the router at home to get device name at home right now, based on requests Python 2.7.14
+"""
+
 import requests
 import time
 import os

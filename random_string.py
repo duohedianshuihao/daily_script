@@ -1,5 +1,9 @@
 # coding: utf-8
 
+"""
+generate a random string of certain length, using -l to define the length, default is 15
+"""
+
 import random
 import string
 import getopt

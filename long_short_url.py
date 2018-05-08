@@ -1,4 +1,7 @@
 # coding: utf-8
+"""
+just a base62 convert method, Python 2.7.14
+"""
 
 import string
 
