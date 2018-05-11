@@ -1,0 +1,14 @@
+<!doctype html>
+
+<title>http server</title>
+{% if error %}
+<h1>{{ error }}</h1>
+{% else %}
+<ul>
+    {% for name in file_names %}
+    <li>
+        <a href="{{ name[0] }}">{{ name[1] }}</a>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
