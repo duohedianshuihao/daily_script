@@ -35,7 +35,7 @@ def set_g():
 
 
 @app.route('/')
-@app.route("/<path:path>")  # <path:params> this would take care of '/' in path
+@app.route("/<path:path>/")  # <path:params> this would take care of '/' in path
 def file_list(path=None):
     if not path:
         path = ""
