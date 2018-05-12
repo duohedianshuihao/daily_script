@@ -1,15 +1,9 @@
 # coding: utf-8
 """
-cgi.escape:
-Convert the characters '&', '<' and '>' in string s to HTML-safe sequences.
-Use this if you need to display text that might contain such characters in HTML.
-If the optional flag quote is true, the quotation mark character (") is also translated;
-this helps for inclusion in an HTML attribute value delimited by double quotes, as in <a href="...">.
-Note that single quotes are never translated
+python version: 3.6.5(using python3 to avoid encoding problmes)
 
-urllib.unquote:
-Replace %xx escapes by their single-character equivalent.
-Example: unquote('/%7Econnolly/') yields '/~connolly/'.
+an simple http server based on SimpleHTTPServer(the file display system)
+using WSGIServer in gevent to enable unblocking download
 """
 import os
 import urllib
@@ -20,7 +14,8 @@ from gevent.wsgi import WSGIServer
 
 
 app = Flask(__name__, template_folder='.')
-os.chdir('/Users/cuizhanyuan/Movies')
+work_path = input("please enter the absolute path you want the http server works: ")
+os.chdir(work_path)
 BASE_DIR = os.getcwd()
 secret_key = os.getenv("_SECRET_KEY")
 app.config.update(DEBUG=True, SECRET_KEY=secret_key)
