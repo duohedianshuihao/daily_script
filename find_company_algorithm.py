@@ -30,8 +30,10 @@ def main():
     for page in range(1, pages + 1):
         get_target_problems(session, url, page, result)
     result.sort(key=lambda problem: problem[0])
-    for line in result:
-        print(line)
+    file_name = input("file name to save the lists: ")
+    with open(file_name, "w") as f:
+        for line in result:
+            f.write(str(line) + "\n")
     print(len(result))
 
 
