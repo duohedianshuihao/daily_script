@@ -1,11 +1,9 @@
 import requests
 from fake_useragent import FakeUserAgent
+from bs4 import BeautifulSoup as Soup
 
-QUESTION_URL = "https://www.1point3acres.com/bbs/plugin.php?id=ahome_dayquestion:pop&infloat=yes&handlekey=pop&inajax=1&ajaxtarget=fwin_content_pop"
-ANSWER_URL = "https://www.1point3acres.com/bbs/plugin.php?id=ahome_dayquestion:index"
-
-CHECKIN_URL = "https://www.1point3acres.com/bbs/plugin.php?id=dsu_paulsign:sign&74889ea9&infloat=yes&handlekey=dsu_paulsign&inajax=1&ajaxtarget=fwin_content_dsu_paulsign"
-SUBMIT_URL = "https://www.1point3acres.com/bbs/plugin.php?id=dsu_paulsign:sign&operation=qiandao&infloat=1&sign_as=1&inajax=1"
+from config import URLConfig, RIGHT
+from utils import get_answer, mark_answer
 
 
 def make_header():
@@ -20,7 +18,7 @@ def make_header():
 
 def make_cookies():
     with open("cookies.txt", "r+") as fd:
-        cookie_str = fd.readlines()[0]
+        cookie_str = fd.read()
 
     cookies = {}
     for item in cookie_str.split(";"):
@@ -40,19 +38,48 @@ def make_data():
     return data
 
 
-# def make_answer():
+def get_question_detail(content):
+    with open("temp.txt", "r+") as fd:
+        content = fd.read()
+    soup = Soup(content, "html.parser")
+
+    question_str = soup.find('font').text.strip()
+
+    answer_d = {}
+    for item in soup.find_all("div", {"class": "qs_option"}):
+        answer_d[item.text.strip()] = item.input["value"]
+    return question_str, answer_d
 
 
-def send_request(headers, cookies):
+def get_question(headers, cookies):
     session = requests.Session()
-    resp = session.get(url=CHECKIN_URL, headers=headers, cookies=cookies)
-    print(resp.status_code)
+    resp = session.get(url=URLConfig.QUESTION_URL, headers=headers, cookies=cookies)
+
+    if resp.status_code != 200:
+        raise Exception
+    return get_question_detail(resp.content.decode(encoding="gbk"))
+
+
+def post_answer(headers, cookies):
+    question_str, answer_d = get_question(headers, cookies)
+
+    answer_str = get_answer(question_str, answer_d.keys())
+
+    session = requests.Session()
+    data = {
+        "answer": answer_d[answer_str]
+    }
+    resp = session.post(url=URLConfig.ANSWER_URL, headers=headers, cookies=cookies, data=data)
     print(resp.content.decode(encoding="gbk"))
 
+    soup = Soup(resp.content, "html.parser")
+    res = True if soup.res.text == RIGHT else 0
+    mark_answer(question_str, answer_str, res)
 
-def checkin_request(headers, cookies, data):
+
+def post_checkin_request(headers, cookies, data):
     session = requests.Session()
-    resp = session.post(url=SUBMIT_URL, headers=headers, cookies=cookies, data=data)
+    resp = session.post(url=URLConfig.SUBMIT_URL, headers=headers, cookies=cookies, data=data)
     print(resp.status_code)
     print(resp.content.decode(encoding="gbk"))
 
@@ -61,8 +88,9 @@ def main():
     headers = make_header()
     cookies = make_cookies()
     data = make_data()
-    # send_request(headers, cookies)
-    checkin_request(headers, cookies, data)
+
+    post_checkin_request(headers, cookies, data)
+    post_answer(headers, cookies)
 
 
 if __name__ == '__main__':
