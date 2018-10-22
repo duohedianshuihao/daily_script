@@ -2,21 +2,23 @@ import requests
 from fake_useragent import FakeUserAgent
 from bs4 import BeautifulSoup as Soup
 
-from config import URLConfig, RIGHT
+from config import URLConfig, WRONG
 from utils import get_answer, mark_answer
 
 
-def make_header():
+def make_headers():
     ua = FakeUserAgent()
     headers = {
         "User-Agent": ua.chrome,
-        "Referer": "https: // www.1point3acres.com/bbs/",
+        "Referer": "https://www.1point3acres.com/bbs/",
         "Host": "www.1point3acres.com",
     }
     return headers
 
 
 def make_cookies():
+    # file_path = "change to cookies path"
+    # file_name = "cookies.txt"
     with open("cookies.txt", "r+") as fd:
         cookie_str = fd.read()
 
@@ -27,20 +29,13 @@ def make_cookies():
     return cookies
 
 
-def make_data():
-    data = {
-        "formhash": "74889ea9",
-        "qdxq": "kx",
-        "qdmode": "2",
-        "todaysay": "",
-        "fastreply": "0"
-    }
-    return data
+def get_question(headers, cookies):
+    session = requests.Session()
+    resp = session.get(url=URLConfig.QUESTION_URL, headers=headers, cookies=cookies)
 
-
-def get_question_detail(content):
-    with open("temp.txt", "r+") as fd:
-        content = fd.read()
+    if resp.status_code != 200:
+        raise Exception
+    content = "".join(resp.text.split("\n")[2:-1])
     soup = Soup(content, "html.parser")
 
     question_str = soup.find('font').text.strip()
@@ -51,15 +46,6 @@ def get_question_detail(content):
     return question_str, answer_d
 
 
-def get_question(headers, cookies):
-    session = requests.Session()
-    resp = session.get(url=URLConfig.QUESTION_URL, headers=headers, cookies=cookies)
-
-    if resp.status_code != 200:
-        raise Exception
-    return get_question_detail(resp.content.decode(encoding="gbk"))
-
-
 def post_answer(headers, cookies):
     question_str, answer_d = get_question(headers, cookies)
 
@@ -67,29 +53,38 @@ def post_answer(headers, cookies):
 
     session = requests.Session()
     data = {
-        "answer": answer_d[answer_str]
+        "formhash": "74889ea9",
+        "answer": answer_d[answer_str],
+        "submit": "true"
     }
     resp = session.post(url=URLConfig.ANSWER_URL, headers=headers, cookies=cookies, data=data)
-    print(resp.content.decode(encoding="gbk"))
 
-    soup = Soup(resp.content, "html.parser")
-    res = True if soup.res.text == RIGHT else 0
-    mark_answer(question_str, answer_str, res)
+    soup = Soup(resp.text, "html.parser")
+    res = soup.find("div", {"id": "messagetext"}).p.text
+    print(res)
+    correct = False if res == WRONG else True
+    mark_answer(question_str, answer_str, correct)
 
 
-def post_checkin_request(headers, cookies, data):
+def post_checkin_request(headers, cookies):
     session = requests.Session()
+    data = {
+        "formhash": "74889ea9",
+        "qdxq": "kx",
+        "qdmode": "2",
+        "todaysay": "",
+        "fastreply": "0"
+    }
     resp = session.post(url=URLConfig.SUBMIT_URL, headers=headers, cookies=cookies, data=data)
     print(resp.status_code)
-    print(resp.content.decode(encoding="gbk"))
+    print(resp.text)
 
 
 def main():
-    headers = make_header()
+    headers = make_headers()
     cookies = make_cookies()
-    data = make_data()
 
-    post_checkin_request(headers, cookies, data)
+    post_checkin_request(headers, cookies)
     post_answer(headers, cookies)
 
 
