@@ -37,5 +37,6 @@ class QuestionDAO(Model):
             cls.create(question=question_str, answer=_answer)
         return
 
-    def mark_answer(self, res):
-        self.update(correct=res)
+    @classmethod
+    def mark_answer(cls, question_str, answer_str, res):
+        cls.update({cls.correct: res}).where(cls.question == question_str, cls.answer == answer_str).execute()

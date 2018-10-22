@@ -23,7 +23,4 @@ def _get_random_answer(question_dao):
 
 
 def mark_answer(question_str, answer_str, res):
-    dao = QuestionDAO.get_question_answer(question_str, answer_str)
-    if dao is None:
-        raise Exception
-    dao.mark_answer(res)
+    QuestionDAO.mark_answer(question_str, answer_str, res)
