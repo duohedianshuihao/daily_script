@@ -1,0 +1,4 @@
+fake_useragent==0.1.10
+peewee==3.7.1
+requests==2.18.4
+beautifulsoup4==4.6.3
