@@ -61,6 +61,18 @@ b2 = AnoMyClass()
 assert id(b1) == id(b2)
 
 ############################################
+"""
+__new__: 完成对象的创建，是类方法，返回值是实例化出来的实例
+__init__: 完成对象的初始化，是实例方法，就是给__new__返回的实例赋初值
+__call__: 对象可以使用call方法模拟函数的执行，obj.__call__(self, *args, **kwargs) 等同于 obj(*args, **kwargs)
+
+下面OtherMyClass的执行过程可以看成，利用元类创建类，利用类实例化
+元类创建类 --> OtherMyClass = _Singleton()  这里相当于调用了_Singleton.__new__() 和 _Singleton.__init__()
+类的实例化 --> c1 = OtherMyClass()  由于OtherMyClass是_Singleton的实例，所以这里调用了_Singleton.__call__()
+
+所以可以在这里利用元类实现单例
+而且_Singleton.__call__()的调用在OtherMyClass.__new__()之前
+"""
 
 
 class _Singleton(type):
@@ -69,10 +81,10 @@ class _Singleton(type):
     """
     _instance = {}
 
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instance:
-            cls._instance[cls] = super(_Singleton, cls).__call__(*args, **kwargs)
-        return cls._instance[cls]
+    def __call__(self, *args, **kwargs):
+        if self not in self._instance:
+            self._instance[self] = super(_Singleton, self).__call__(*args, **kwargs)
+        return self._instance[self]
 
 
 class OtherMyClass():
