@@ -60,7 +60,7 @@ def post_answer(headers, cookies):
     resp = session.post(url=URLConfig.ANSWER_URL, headers=headers, cookies=cookies, data=data)
 
     soup = Soup(resp.text, "html.parser")
-    res = soup.find("div", {"id": "messagetext"}).p.text
+    res = soup.find("div", {"id": "messagetext"}).p.text.split("setTimeout")[0]
     print(res)
     correct = False if res == WRONG else True
     mark_answer(question_str, answer_str, correct)

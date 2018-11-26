@@ -23,4 +23,4 @@ class URLConfig(object):
     SUBMIT_URL = "https://www.1point3acres.com/bbs/plugin.php?id=dsu_paulsign:sign&operation=qiandao&infloat=1&sign_as=1&inajax=1"
 
 
-WRONG = '抱歉，回答错误！扣除1大米setTimeout("window.location.href =\'plugin.php?id=ahome_dayquestion:index\';", 3000);'
+WRONG = "抱歉，回答错误！扣除1大米"
